@@ -1,32 +1,23 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { createClient, FileStat } from 'webdav';
+import { FileStat } from 'webdav';
 
-const OWNCLOUD_ROOT = '/Hagenbrunn/Kaminuhren';
-
-export type Clock = {
-  name: string;
-};
+import { getClient, OWNCLOUD_ROOT } from '../../utils/owncloud';
 
 type Data = {
-  clocks: Clock[];
+  data: number[];
 };
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>,
 ) {
-  const client = createClient(process.env.OWNCLOUD_URL!, {
-    username: process.env.OWNCLOUD_USERNAME,
-    password: process.env.OWNCLOUD_PASSWORD,
-  });
+  const client = getClient();
   const directoryItems = (await client.getDirectoryContents(OWNCLOUD_ROOT, {
     glob: 'Kaminuhr-*',
   })) as FileStat[];
 
   res.status(200).json({
-    clocks: directoryItems.map((dir) => {
-      return { name: dir.basename };
-    }),
+    data: directoryItems.map((dir) => Number(dir.basename.split('-')[1])),
   });
 }
