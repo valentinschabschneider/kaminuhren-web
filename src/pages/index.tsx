@@ -104,7 +104,7 @@ export default function Home() {
         <Center>
           <SimpleGrid
             minChildWidth={260}
-            spacing={40}
+            spacing="40px"
             width="full"
             maxWidth={900}
             placeItems="center"
