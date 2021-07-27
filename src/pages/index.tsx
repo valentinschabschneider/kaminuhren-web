@@ -1,33 +1,89 @@
 import { useState } from 'react';
 
-import Link from 'next/link';
+import NextLink from 'next/link';
 
-import { Button } from '@chakra-ui/react';
+import { useQuery } from 'react-query';
+
+import {
+  Button,
+  SimpleGrid,
+  Box,
+  Image,
+  Text,
+  AspectRatio,
+  Link,
+  Skeleton,
+  SkeletonText,
+  Center,
+} from '@chakra-ui/react';
 
 import { Clock } from './api/clock/[id]';
-import { getClock, IMAGE_NOT_FOUND_URL } from './clock/[id]';
+import { fetchClock, IMAGE_NOT_FOUND_URL } from './clock/[id]';
 
-export const getClockIds = async (): Promise<number[]> => {
-  return fetch(`/api/clocks`).then((response) =>
-    response.json().then((data) => data.data),
+export const fetchClockIds = async (): Promise<number[]> => {
+  const res = await fetch(`/api/clocks`);
+  return res.json().then((data) => data.data);
+};
+
+interface ClockCardProps {
+  id: number;
+}
+
+const ClockCard = ({ id }: ClockCardProps) => {
+  const { isLoading, error, data } = useQuery<Clock, Error>(
+    ['clock', { id }],
+    () => fetchClock(id),
+  );
+
+  if (error) return <p>An error has occurred: {error.message}</p>;
+
+  return (
+    <Box
+      maxW="sm"
+      borderWidth="1px"
+      borderRadius="lg"
+      overflow="hidden"
+      height={330}
+      width={260}
+      _hover={{
+        transform: 'scale3d(1.05, 1.05, 1)',
+      }}
+      style={{ transition: 'transform 0.15s ease-in-out' }}
+    >
+      <NextLink href={`/clock/${id}`} passHref>
+        <Link style={{ textDecoration: 'none' }}>
+          <AspectRatio ratio={1}>
+            <Skeleton isLoaded={!isLoading}>
+              <Image
+                src={data?.thumbnailUrl || IMAGE_NOT_FOUND_URL}
+                fallbackSrc={IMAGE_NOT_FOUND_URL}
+                alt={data?.name}
+                objectFit="cover"
+                width="full"
+                height="full"
+              />
+            </Skeleton>
+          </AspectRatio>
+          <Box p="5">
+            <Text isTruncated>{data?.description}</Text>
+            <SkeletonText isLoaded={!isLoading} mt="3" noOfLines={1} />
+          </Box>
+        </Link>
+      </NextLink>
+    </Box>
   );
 };
 
 export default function Home() {
-  const [clocks, setClocks] = useState<Clock[]>([]);
+  const [clockIds, setClockIds] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const getClocks = async () => {
+  const getClockIds = async () => {
     setIsLoading(true);
-    await setClocks([]);
-    const requets = await getClockIds().then((ids) =>
-      ids.map((id) =>
-        getClock(id).then((clock) => {
-          return setClocks((state) => [...state, clock]);
-        }),
-      ),
-    );
-    await Promise.all(requets).then(() => setIsLoading(false));
+    fetchClockIds().then((ids) => {
+      setClockIds(ids.sort((a, b) => a - b));
+      setIsLoading(false);
+    });
   };
 
   return (
@@ -39,35 +95,25 @@ export default function Home() {
         variant="outline"
         onClick={(e) => {
           e.preventDefault();
-          getClocks();
+          getClockIds();
         }}
       >
         Load Clocks
       </Button>
-      {isLoading && clocks.length < 10 ? (
-        <></>
-      ) : (
-        <ul>
-          {clocks
-            .sort((a, b) => a.id - b.id)
-            .map((clock) => (
-              <li key={clock.id}>
-                <Link href={`/clock/${clock.id}`}>{clock.name}</Link>
-                <img
-                  src={
-                    clock.imageUrls?.length
-                      ? clock.imageUrls[0]
-                      : IMAGE_NOT_FOUND_URL
-                  }
-                  onError={(e) => {
-                    const image = e.target as HTMLImageElement;
-                    image.src = IMAGE_NOT_FOUND_URL;
-                  }}
-                  width={100}
-                />
-              </li>
+      {!isLoading && (
+        <Center>
+          <SimpleGrid
+            minChildWidth={260}
+            spacing={40}
+            width="full"
+            maxWidth={900}
+            placeItems="center"
+          >
+            {clockIds.map((id) => (
+              <ClockCard key={id} id={id} />
             ))}
-        </ul>
+          </SimpleGrid>
+        </Center>
       )}
     </>
   );

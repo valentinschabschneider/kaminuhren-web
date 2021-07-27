@@ -14,10 +14,12 @@ export default async function handler(
 ) {
   const client = getClient();
   const directoryItems = (await client.getDirectoryContents(OWNCLOUD_ROOT, {
-    glob: 'Kaminuhr-*',
+    glob: '*',
   })) as FileStat[];
 
   res.status(200).json({
-    data: directoryItems.map((dir) => Number(dir.basename.split('-')[1])),
+    data: directoryItems
+      .map((dir) => Number(dir.basename))
+      .sort((a, b) => a - b),
   });
 }

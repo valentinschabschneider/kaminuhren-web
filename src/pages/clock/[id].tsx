@@ -7,8 +7,9 @@ import { Clock } from '../api/clock/[id]';
 export const IMAGE_NOT_FOUND_URL =
   'https://www.freeiconspng.com/uploads/no-image-icon-4.png';
 
-export const getClock = async (id: number): Promise<Clock> => {
-  return fetch(`/api/clock/${id}`).then((response) => response.json());
+export const fetchClock = async (id: number): Promise<Clock> => {
+  const res = await fetch(`/api/clock/${id}`);
+  return res.json();
 };
 
 export default function ClockPage() {
@@ -21,7 +22,7 @@ export default function ClockPage() {
   useEffect(() => {
     setIsLoading(true);
     if (id !== undefined)
-      getClock(Number(id)).then((clock) => {
+      fetchClock(Number(id)).then((clock) => {
         setClock(clock); // Set the clocks variable
         setIsLoading(false);
       });

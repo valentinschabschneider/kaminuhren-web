@@ -10,8 +10,8 @@ import {
 const zeroPad = (num: number, places: number) =>
   String(num).padStart(places, '0');
 
-const getFileUrl = (clockName: string, file: string) => {
-  return `${OWNCLOUD_SHARE_URL}/download?path=/${clockName}&files=${file}`;
+const getFileUrl = (clockId: number, file: string) => {
+  return `${OWNCLOUD_SHARE_URL}/download?path=/${clockId}&files=${file}`;
 };
 
 export type Clock = {
@@ -19,6 +19,7 @@ export type Clock = {
   name: string;
   description: string | undefined;
   qrCodeUrl: string | undefined;
+  thumbnailUrl: string | undefined;
   imageUrls: string[];
 };
 
@@ -27,37 +28,40 @@ export const getClock = async (id: number): Promise<Clock> => {
 
   const name = `Kaminuhr-${zeroPad(id, 4)}`;
 
-  const directoryPath = OWNCLOUD_ROOT + `/${name}`;
+  const directoryPath = OWNCLOUD_ROOT + `/${id}`;
 
   const description = await client
-    .getFileContents(directoryPath + '/Beschreibung.txt', {
+    .getFileContents(directoryPath + '/description.txt', {
       format: 'text',
     })
     .catch((error) => undefined);
 
-  const qrCodeUrl = getFileUrl(name, `${name}.png`);
+  const qrCodeUrl = getFileUrl(id, 'qr-code.png');
+
+  const thumbnailUrl = getFileUrl(id, 'thumbnail.jpg');
 
   const images: FileStat[] = [];
 
   images.push(
     ...((await client.getDirectoryContents(directoryPath, {
-      glob: '*.jpg',
+      glob: 'image-*.jpg',
     })) as FileStat[]),
   );
 
-  images.push(
-    ...((await client.getDirectoryContents(directoryPath, {
-      glob: '*.JPG',
-    })) as FileStat[]),
-  );
+  // images.push(
+  //   ...((await client.getDirectoryContents(directoryPath, {
+  //     glob: '*.JPG',
+  //   })) as FileStat[]),
+  // );
 
-  const imageUrls = images.map((image) => getFileUrl(name, image.basename));
+  const imageUrls = images.map((image) => getFileUrl(id, image.basename));
 
   return {
     id,
     name,
     description: String(description),
     qrCodeUrl,
+    thumbnailUrl,
     imageUrls,
   };
 };
