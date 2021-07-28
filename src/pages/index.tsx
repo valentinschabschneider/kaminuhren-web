@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import NextLink from 'next/link';
 
 import { useQuery } from 'react-query';
 
+import InfiniteScroll from 'react-infinite-scroll-component';
+
+import { PulseLoader, GridLoader } from 'react-spinners';
+
 import {
-  Button,
   SimpleGrid,
   Box,
   Image,
@@ -43,7 +46,7 @@ const ClockCard = ({ id }: ClockCardProps) => {
       borderWidth="1px"
       borderRadius="lg"
       overflow="hidden"
-      height={330}
+      height={375}
       width={260}
       _hover={{
         transform: 'scale3d(1.05, 1.05, 1)',
@@ -52,7 +55,7 @@ const ClockCard = ({ id }: ClockCardProps) => {
     >
       <NextLink href={`/clock/${id}`} passHref>
         <Link style={{ textDecoration: 'none' }}>
-          <AspectRatio ratio={1}>
+          <AspectRatio ratio={1 / 1.2}>
             <Skeleton isLoaded={!isLoading}>
               <Image
                 src={data?.thumbnailUrl || IMAGE_NOT_FOUND_URL}
@@ -76,7 +79,9 @@ const ClockCard = ({ id }: ClockCardProps) => {
 
 export default function Home() {
   const [clockIds, setClockIds] = useState<number[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [displayedClocksAmount, setDisplayedClocksAmount] =
+    useState<number>(18);
+  const [isLoading, setIsLoading] = useState(true);
 
   const getClockIds = async () => {
     setIsLoading(true);
@@ -86,35 +91,49 @@ export default function Home() {
     });
   };
 
+  useEffect(() => {
+    getClockIds();
+  }, []);
+
+  const displayMoreClocks = async (additionalAmount: number) => {
+    setDisplayedClocksAmount((a) => (a += additionalAmount));
+  };
+
+  if (isLoading)
+    return (
+      <Center height="100vh">
+        <GridLoader size={50} color="#696969" />
+      </Center>
+    );
+
   return (
-    <>
-      <Button
-        isLoading={isLoading}
-        loadingText="Loading"
-        colorScheme="teal"
-        variant="outline"
-        onClick={(e) => {
-          e.preventDefault();
-          getClockIds();
-        }}
-      >
-        Load Clocks
-      </Button>
-      {!isLoading && (
-        <Center>
-          <SimpleGrid
-            minChildWidth={260}
-            spacing="40px"
-            width="full"
-            maxWidth={900}
-            placeItems="center"
-          >
-            {clockIds.map((id) => (
-              <ClockCard key={id} id={id} />
-            ))}
-          </SimpleGrid>
+    <InfiniteScroll
+      dataLength={displayedClocksAmount}
+      next={() => displayMoreClocks(18)}
+      hasMore={clockIds.length > displayedClocksAmount}
+      loader={
+        <Center my={5}>
+          <PulseLoader color="#696969" />
         </Center>
-      )}
-    </>
+      }
+      endMessage={
+        <Center marginBottom={5}>
+          <Text fontWeight={700}>Hier gibt es nichts mehr zu sehen :)</Text>
+        </Center>
+      }
+    >
+      <SimpleGrid
+        minChildWidth={260}
+        spacing="30px"
+        width="full"
+        maxWidth={900}
+        placeItems="center"
+        padding={5}
+      >
+        {clockIds.slice(0, displayedClocksAmount).map((id) => (
+          <ClockCard key={id} id={id} />
+        ))}
+      </SimpleGrid>
+    </InfiniteScroll>
   );
 }
