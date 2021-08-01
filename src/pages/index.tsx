@@ -18,6 +18,7 @@ import {
   Skeleton,
   SkeletonText,
   Center,
+  Code,
 } from '@chakra-ui/react';
 
 import { Clock } from './api/clock/[id]';
@@ -41,20 +42,21 @@ const ClockCard = ({ id }: ClockCardProps) => {
   if (error) return <p>An error has occurred: {error.message}</p>;
 
   return (
-    <Box
-      maxW="sm"
-      borderWidth="1px"
-      borderRadius="lg"
-      overflow="hidden"
-      height={375}
-      width={260}
-      _hover={{
-        transform: 'scale3d(1.05, 1.05, 1)',
-      }}
-      style={{ transition: 'transform 0.15s ease-in-out' }}
-    >
-      <NextLink href={`/clock/${id}`} passHref>
-        <Link style={{ textDecoration: 'none' }}>
+    <NextLink href={`/clock/${id}`} passHref>
+      <Link textDecoration="none !important">
+        <Box
+          maxW="sm"
+          borderWidth="1px"
+          borderRadius="lg"
+          overflow="hidden"
+          height={375}
+          width={260}
+          position="relative"
+          transition="transform 0.15s ease-in-out"
+          _hover={{
+            transform: 'scale3d(1.05, 1.05, 1)',
+          }}
+        >
           <AspectRatio ratio={1 / 1.2}>
             <Skeleton isLoaded={!isLoading}>
               <Image
@@ -67,13 +69,24 @@ const ClockCard = ({ id }: ClockCardProps) => {
               />
             </Skeleton>
           </AspectRatio>
+          <Code
+            position="absolute"
+            padding="0 5px"
+            borderBottomRightRadius="lg"
+            borderWidth="0 1px 1px 0"
+            background="#1a202c"
+            color="#ededed"
+            top="0"
+          >
+            {'#' + id}
+          </Code>
           <Box p="5">
             <Text isTruncated>{data?.description}</Text>
             <SkeletonText isLoaded={!isLoading} mt="3" noOfLines={1} />
           </Box>
-        </Link>
-      </NextLink>
-    </Box>
+        </Box>
+      </Link>
+    </NextLink>
   );
 };
 
