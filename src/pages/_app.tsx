@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { AppProps } from 'next/app';
+import { useEffect, useState } from 'react';
 
+import { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
 
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -9,7 +9,9 @@ import { ChakraProvider } from '@chakra-ui/react';
 
 import { useAuthState } from 'react-firebase-hooks/auth';
 
-import firebase from '../utils/firebase';
+import firebase from '@/utils/firebase';
+
+import Loading from '@/components/Loading';
 
 const auth = firebase.auth();
 
@@ -19,18 +21,23 @@ import '@/styles/global.scss';
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  const [user, loading] = useAuthState(auth);
+  const [user, isLoading] = useAuthState(auth);
+  const [isLoginPage, setIsLoginPage] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!(user || loading)) {
-      router.push('/login');
+    if (!(user || isLoading)) {
+      router.push('/login').then(() => setIsLoginPage(true));
     }
-  }, [user, loading]);
+  }, [user, isLoading]);
 
   return (
     <QueryClientProvider client={queryClient}>
       <ChakraProvider>
-        <Component {...pageProps} />
+        {!isLoading && (isLoginPage || user) ? (
+          <Component {...pageProps} />
+        ) : (
+          <Loading />
+        )}
       </ChakraProvider>
     </QueryClientProvider>
   );
