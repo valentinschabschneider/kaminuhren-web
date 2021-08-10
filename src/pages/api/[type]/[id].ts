@@ -1,34 +1,25 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { FileStat } from 'webdav';
 
-import {
-  getClient,
-  OWNCLOUD_ROOT,
-  OWNCLOUD_SHARE_URL,
-} from '../../../utils/owncloud';
+import { getClient, OWNCLOUD_SHARE_URL } from '@/utils/owncloud';
 
-const zeroPad = (num: number, places: number) =>
-  String(num).padStart(places, '0');
-
-const getFileUrl = (clockId: number, file: string) => {
-  return `${OWNCLOUD_SHARE_URL}/download?path=/${clockId}&files=${file}`;
+const getFileUrl = (clockType: string, clockId: number, file: string) => {
+  return `${OWNCLOUD_SHARE_URL}/download?path=/${clockType}/${clockId}&files=${file}`;
 };
 
 export type Clock = {
   id: number;
-  name: string;
+  type: string;
   description: string | undefined;
   qrCodeUrl: string | undefined;
   thumbnailUrl: string | undefined;
   imageUrls: string[];
 };
 
-export const getClock = async (id: number): Promise<Clock> => {
+export const getClock = async (type: string, id: number): Promise<Clock> => {
   const client = getClient();
 
-  const name = `Kaminuhr-${zeroPad(id, 4)}`;
-
-  const directoryPath = OWNCLOUD_ROOT + `/${id}`;
+  const directoryPath = `/${type}/${id}`;
 
   const description = await client
     .getFileContents(directoryPath + '/description.txt', {
@@ -36,9 +27,9 @@ export const getClock = async (id: number): Promise<Clock> => {
     })
     .catch((error) => undefined);
 
-  const qrCodeUrl = getFileUrl(id, 'qr-code.png');
+  const qrCodeUrl = getFileUrl(type, id, 'qr-code.png');
 
-  const thumbnailUrl = getFileUrl(id, 'thumbnail.jpg');
+  const thumbnailUrl = getFileUrl(type, id, 'thumbnail.jpg');
 
   const images: FileStat[] = [];
 
@@ -48,17 +39,11 @@ export const getClock = async (id: number): Promise<Clock> => {
     })) as FileStat[]),
   );
 
-  // images.push(
-  //   ...((await client.getDirectoryContents(directoryPath, {
-  //     glob: '*.JPG',
-  //   })) as FileStat[]),
-  // );
-
-  const imageUrls = images.map((image) => getFileUrl(id, image.basename));
+  const imageUrls = images.map((image) => getFileUrl(type, id, image.basename));
 
   return {
     id,
-    name,
+    type,
     description: String(description),
     qrCodeUrl,
     thumbnailUrl,
@@ -71,15 +56,13 @@ export default async function clockHandler(
   res: NextApiResponse<Clock>,
 ) {
   const {
-    query: { id: idStr },
+    query: { type, id },
     method,
   } = req;
 
-  const id = Number(idStr);
-
   switch (method) {
     case 'GET':
-      res.status(200).json(await getClock(id));
+      res.status(200).json(await getClock(String(type), Number(id)));
       break;
     default:
       res.setHeader('Allow', ['GET']);
