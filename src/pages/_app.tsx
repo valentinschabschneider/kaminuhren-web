@@ -10,14 +10,13 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
 import firebase from '@/utils/firebase';
-
 import Loading from '@/components/Loading';
+
+import '@/styles/global.scss';
 
 const auth = firebase.auth();
 
 const queryClient = new QueryClient();
-
-import '@/styles/global.scss';
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
