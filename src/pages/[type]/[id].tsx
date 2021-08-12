@@ -1,18 +1,20 @@
 import { useRouter } from 'next/router';
-import Head from 'next/head';
 
 import { useQuery } from 'react-query';
 
-import { Clock } from '@/pages/api/[type]/[id]';
-import getStore from '@/utils/store';
+import { Clock } from '@/types';
 import Loading from '@/components/Loading';
-import { getClockTypeByLink } from '@/utils/owncloud';
-
-export const IMAGE_NOT_FOUND_URL =
-  'https://www.freeiconspng.com/uploads/no-image-icon-4.png';
+import getStore from '@/utils/store';
+import ClockDetail from '@/components/ClockDetail';
+import ErrorPage from '@/components/Error';
 
 const fetchClock = (type: string, id: number): Promise<Clock> =>
-  fetch(`/api/${type}/${id}`).then((response) => response.json());
+  fetch(`/api/${type}/${id}`).then((response) => {
+    if (!response.ok) {
+      throw Error(response.statusText);
+    }
+    return response.json();
+  });
 
 export const useClock = (type: string, id: number) =>
   useQuery<Clock, Error>(['clock', { type, id }], () => {
@@ -25,6 +27,7 @@ export const useClock = (type: string, id: number) =>
     const addClock = useStore.getState().addClock;
 
     return fetchClock(type, id).then((clock) => {
+      console.log('wat');
       addClock(clock);
       return clock;
     });
@@ -35,45 +38,14 @@ export default function ClockPage() {
 
   if (!router.isReady) return <Loading />;
 
-  const clockType = String(router.query.type);
+  const type = String(router.query.type);
   const id = Number(router.query.id);
 
-  const { isLoading, error, data: clock } = useClock(clockType, id);
+  const { isLoading, error, data: clock } = useClock(type, id);
+
+  if (error) return <ErrorPage />;
 
   if (isLoading) return <Loading />;
 
-  return (
-    <>
-      <Head>
-        <title>
-          {getClockTypeByLink(clockType)?.singularDisplayName} #{id}
-        </title>
-      </Head>
-      <p>{clock?.description}</p>
-      {clock?.qrCodeUrl !== undefined ? (
-        <img
-          src={clock!.qrCodeUrl}
-          onError={(e) => {
-            const image = e.target as HTMLImageElement;
-            image.src = IMAGE_NOT_FOUND_URL;
-          }}
-        />
-      ) : (
-        <p>missing qr code</p>
-      )}
-      {clock?.imageUrls !== undefined && clock?.imageUrls.length > 0 ? (
-        clock?.imageUrls.map((url) => (
-          <img
-            src={url}
-            onError={(e) => {
-              const image = e.target as HTMLImageElement;
-              image.src = IMAGE_NOT_FOUND_URL;
-            }}
-          />
-        ))
-      ) : (
-        <p>no images</p>
-      )}
-    </>
-  );
+  return <ClockDetail clock={clock!} />;
 }
