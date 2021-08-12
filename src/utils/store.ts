@@ -1,7 +1,7 @@
 import create, { UseStore } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { Clock } from '@/pages/api/[type]/[id]';
+import { Clock } from '@/types';
 
 type State = {
   clockIds: number[];
