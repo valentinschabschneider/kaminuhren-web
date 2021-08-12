@@ -8,7 +8,7 @@ export default function Loading() {
   return (
     <>
       <Head>
-        <title>Loading...</title>
+        <title>Lädt...</title>
       </Head>
       <Center height="100vh">
         <GridLoader size={50} color="#696969" />
