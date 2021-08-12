@@ -7,15 +7,18 @@ import { useQuery } from 'react-query';
 
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-import { PulseLoader, GridLoader } from 'react-spinners';
+import { PulseLoader } from 'react-spinners';
 
-import { SimpleGrid, Text, Center } from '@chakra-ui/react';
+import { SimpleGrid, Text, Center, useDisclosure } from '@chakra-ui/react';
 
 import getStore from '@/utils/store';
 
 import ClockCard from '@/components/ClockCard';
 import Loading from '@/components/Loading';
-import { getClockTypeByLink } from '@/utils/owncloud';
+import { getClockTypeByLink } from '@/utils/misc';
+import ClockModal from '@/components/ClockModal';
+import ErrorPage from '@/components/Error';
+import { Clock } from '@/types';
 
 const fetchClockIds = (type: string): Promise<number[]> =>
   fetch(`/api/${type}`).then((response) =>
@@ -36,12 +39,14 @@ export default function ClocksList() {
 
   if (!router.isReady) return <Loading />;
 
-  const clockType = String(router.query.type);
+  const clockType = getClockTypeByLink(String(router.query.type));
 
-  const useStore = getStore(clockType);
+  const useStore = getStore(clockType.link);
   const clockIds = useStore((state) => state.clockIds);
 
-  const { isLoading, error } = useClockIds(clockType);
+  const { isLoading, error } = useClockIds(clockType.link);
+
+  if (error) return <ErrorPage />;
 
   const [displayedClocksAmount, setDisplayedClocksAmount] =
     useState<number>(18);
@@ -50,12 +55,32 @@ export default function ClocksList() {
     setDisplayedClocksAmount((a) => (a += additionalAmount));
   };
 
+  const {
+    isOpen: modalIsOpen,
+    onOpen: modalOnOpen,
+    onClose: modalOnClose,
+  } = useDisclosure();
+
+  const [openClock, setOpenClock] = useState<Clock>();
+
+  const onClockCardOpen = (clock: Clock) => {
+    setOpenClock(clock);
+    history.pushState({}, '', `/${clock.type}/${clock.id}`);
+    modalOnOpen();
+  };
+
+  const onClockCardClose = () => {
+    history.back();
+    setOpenClock(undefined);
+    modalOnClose();
+  };
+
   if (isLoading) return <Loading />;
 
   return (
     <>
       <Head>
-        <title>{getClockTypeByLink(clockType)?.pluralDisplayName}</title>
+        <title>{clockType.pluralDisplayName}</title>
       </Head>
       <InfiniteScroll
         dataLength={displayedClocksAmount}
@@ -81,10 +106,21 @@ export default function ClocksList() {
           padding={5}
         >
           {clockIds!.slice(0, displayedClocksAmount).map((id) => (
-            <ClockCard key={id} type={clockType} id={id} />
+            <ClockCard
+              type={clockType.link}
+              id={id}
+              onClick={onClockCardOpen}
+            />
           ))}
         </SimpleGrid>
       </InfiniteScroll>
+      {openClock && (
+        <ClockModal
+          clock={openClock}
+          onClose={onClockCardClose}
+          isOpen={modalIsOpen}
+        />
+      )}
     </>
   );
 }

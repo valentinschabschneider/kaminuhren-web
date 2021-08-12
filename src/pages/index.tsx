@@ -3,7 +3,7 @@ import Head from 'next/head';
 
 import { Center, UnorderedList, ListItem, Link } from '@chakra-ui/react';
 
-import { CLOCK_TYPES } from '@/utils/owncloud';
+import { CLOCK_TYPES } from '@/constants';
 
 const Home = () => {
   return (
