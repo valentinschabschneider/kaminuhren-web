@@ -2,18 +2,10 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { FileStat } from 'webdav';
 
 import { getClient, OWNCLOUD_SHARE_URL } from '@/utils/owncloud';
+import { Clock } from '@/types';
 
 const getFileUrl = (clockType: string, clockId: number, file: string) => {
   return `${OWNCLOUD_SHARE_URL}/download?path=/${clockType}/${clockId}&files=${file}`;
-};
-
-export type Clock = {
-  id: number;
-  type: string;
-  description: string | undefined;
-  qrCodeUrl: string | undefined;
-  thumbnailUrl: string | undefined;
-  imageUrls: string[];
 };
 
 export const getClock = async (type: string, id: number): Promise<Clock> => {
