@@ -2,11 +2,14 @@ import { useRouter } from 'next/router';
 
 import { useQuery } from 'react-query';
 
+import { Box, Center, Text, Heading } from '@chakra-ui/react';
+
 import { Clock } from '@/types';
 import Loading from '@/components/Loading';
 import getStore from '@/utils/store';
 import ClockDetail from '@/components/ClockDetail';
 import ErrorPage from '@/components/Error';
+import { getClockTypeByLink } from '@/utils/misc';
 
 const fetchClock = (type: string, id: number): Promise<Clock> =>
   fetch(`/api/${type}/${id}`).then((response) => {
@@ -47,5 +50,14 @@ export default function ClockPage() {
 
   if (isLoading) return <Loading />;
 
-  return <ClockDetail clock={clock!} />;
+  return (
+    <Center>
+      <Box m="5" maxWidth="1000">
+        <Heading mb="5">
+          {getClockTypeByLink(clock!.type)?.singularDisplayName} #{clock!.id}
+        </Heading>
+        <ClockDetail clock={clock!} />
+      </Box>
+    </Center>
+  );
 }
