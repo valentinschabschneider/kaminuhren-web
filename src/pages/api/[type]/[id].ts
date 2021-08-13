@@ -19,7 +19,8 @@ export const getClock = async (type: string, id: number): Promise<Clock> => {
     })
     .then((text) => {
       const str = String(text);
-      if (str.replace(/\s/g, '').length) return str.split('\r\n');
+      if (str.replace(/\s/g, '').length)
+        return str.split('\r\n').filter((row) => row.replace(/\s/g, '').length);
       else return undefined;
     })
     .catch((error) => undefined);
