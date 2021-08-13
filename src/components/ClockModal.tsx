@@ -22,7 +22,7 @@ interface ClockCardProps {
 
 const ClockModal: React.FC<ClockCardProps> = ({ clock, onClose, isOpen }) => {
   return (
-    <Modal onClose={onClose} size="xl" isOpen={isOpen}>
+    <Modal onClose={onClose} size="3xl" isOpen={isOpen}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
