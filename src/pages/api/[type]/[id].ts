@@ -17,6 +17,11 @@ export const getClock = async (type: string, id: number): Promise<Clock> => {
     .getFileContents(directoryPath + '/description.txt', {
       format: 'text',
     })
+    .then((text) => {
+      const str = String(text);
+      if (str.replace(/\s/g, '').length) return str.split('\r\n');
+      else return undefined;
+    })
     .catch((error) => undefined);
 
   const qrCodeUrl = getFileUrl(type, id, 'qr-code.png');
@@ -36,7 +41,7 @@ export const getClock = async (type: string, id: number): Promise<Clock> => {
   return {
     id,
     type,
-    description: String(description),
+    description,
     qrCodeUrl,
     thumbnailUrl,
     imageUrls,
