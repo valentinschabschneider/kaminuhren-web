@@ -12,6 +12,7 @@ import {
   PopoverContent,
   PopoverArrow,
   PopoverBody,
+  Center,
 } from '@chakra-ui/react';
 
 import { getClockTypeByLink } from '@/utils/misc';
@@ -56,17 +57,19 @@ const ClockDetail: React.FC<ClockDetailProps> = ({ clock }) => {
           </PopoverContent>
         </Popover>
       </Flex>
-      {clock?.imageUrls !== undefined && clock?.imageUrls.length > 0 ? (
-        clock?.imageUrls.map((url) => (
-          <Image
-            src={url}
-            fallbackSrc={IMAGE_NOT_FOUND_URL}
-            borderRadius="md"
-          />
-        ))
-      ) : (
-        <p>no images</p>
-      )}
+      <Center>
+        {clock?.imageUrls !== undefined && clock?.imageUrls.length > 0 ? (
+          clock?.imageUrls.map((url) => (
+            <Image
+              src={url}
+              fallbackSrc={IMAGE_NOT_FOUND_URL}
+              borderRadius="md"
+            />
+          ))
+        ) : (
+          <p>no images</p>
+        )}
+      </Center>
     </>
   );
 };
