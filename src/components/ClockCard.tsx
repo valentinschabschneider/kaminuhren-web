@@ -9,6 +9,7 @@ import {
   SkeletonText,
   Code,
   Link,
+  Center,
 } from '@chakra-ui/react';
 
 import { useClock } from '@/pages/[type]/[id]';
@@ -49,7 +50,6 @@ const ClockCard: React.FC<ClockCardProps> = ({ type, id, onClick }) => {
         borderWidth="1px"
         borderRadius="lg"
         overflow="hidden"
-        height={375}
         width={260}
         position="relative"
         transition="transform 0.15s ease-in-out"
@@ -82,10 +82,26 @@ const ClockCard: React.FC<ClockCardProps> = ({ type, id, onClick }) => {
         >
           {'#' + id}
         </Code>
-        <Box p="5">
-          <Text isTruncated>{clock?.description}</Text>
-          <SkeletonText isLoaded={!isLoading} mt="3" noOfLines={1} />
-        </Box>
+        <Center height="4rem">
+          <Box width="100%" p="2">
+            {!isLoading ? (
+              clock?.description ? (
+                clock.description
+                  .slice(0, 2)
+                  .map((line, i) => (
+                    <Text isTruncated>
+                      {line +
+                        (i == 1 && clock.description!.length > 2 ? '...' : '')}
+                    </Text>
+                  ))
+              ) : (
+                <Text>Keine Beschreibung verfügbar.</Text>
+              )
+            ) : (
+              <SkeletonText isLoaded={!isLoading} noOfLines={2} spacing="4" />
+            )}
+          </Box>
+        </Center>
       </Box>
     </Link>
   );
