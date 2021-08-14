@@ -13,6 +13,7 @@ import {
   PopoverArrow,
   PopoverBody,
   Center,
+  Skeleton,
 } from '@chakra-ui/react';
 
 import { getClockTypeByLink } from '@/utils/misc';
@@ -47,6 +48,7 @@ const ClockDetail: React.FC<ClockDetailProps> = ({ clock }) => {
               isDisabled={!clock.qrCodeUrl}
               aria-label="QR-Code"
               icon={<QRCodeIcon />}
+              fontSize="30px"
             />
           </PopoverTrigger>
           <PopoverContent backgroundColor="white">
@@ -62,12 +64,20 @@ const ClockDetail: React.FC<ClockDetailProps> = ({ clock }) => {
           clock?.imageUrls.map((url) => (
             <Image
               src={url}
-              fallbackSrc={IMAGE_NOT_FOUND_URL}
+              fallback={
+                <Skeleton
+                  isLoaded={false}
+                  height="500px"
+                  width="full"
+                  borderRadius="md"
+                />
+              }
+              minHeight="500px"
               borderRadius="md"
             />
           ))
         ) : (
-          <p>no images</p>
+          <Image src={IMAGE_NOT_FOUND_URL} borderRadius="md" height="500px" />
         )}
       </Center>
     </>

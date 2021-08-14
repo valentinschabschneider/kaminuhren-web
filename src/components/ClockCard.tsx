@@ -33,7 +33,6 @@ const ClockCard: React.FC<ClockCardProps> = ({ type, id, onClick }) => {
 
   return (
     <Link
-      key={id}
       href={`/${type}/${id}`}
       textDecoration="none !important"
       onClick={(e) => {
@@ -58,18 +57,22 @@ const ClockCard: React.FC<ClockCardProps> = ({ type, id, onClick }) => {
         }}
       >
         <AspectRatio ratio={1 / 1.2} borderBottomWidth="1px">
-          <Skeleton isLoaded={!isLoading && thumbnailLoaded}>
-            <Image
-              src={clock?.thumbnailUrl || IMAGE_NOT_FOUND_URL}
-              alt={`${getClockTypeByLink(type)?.singularDisplayName} #${id}`}
-              objectFit="cover"
-              width="full"
-              height="full"
-              onLoad={() => setThumbnailLoaded(true)}
-              border={0}
-              textAlign="center"
-            />
-          </Skeleton>
+          <Image
+            src={clock?.thumbnailUrl}
+            fallbackSrc={IMAGE_NOT_FOUND_URL}
+            fallback={
+              isLoading || clock?.thumbnailUrl ? (
+                <Skeleton height="full" width="full" />
+              ) : undefined
+            }
+            alt={`${getClockTypeByLink(type)?.singularDisplayName} #${id}`}
+            objectFit="cover"
+            width="full"
+            height="full"
+            onLoad={() => setThumbnailLoaded(true)}
+            border="0"
+            textAlign="center"
+          />
         </AspectRatio>
         <Code
           position="absolute"
