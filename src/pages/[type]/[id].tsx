@@ -1,8 +1,9 @@
 import { useRouter } from 'next/router';
+import NextLink from 'next/link';
 
 import { useQuery } from 'react-query';
 
-import { Box, Center, Text, Heading } from '@chakra-ui/react';
+import { Box, Center, Link, Heading } from '@chakra-ui/react';
 
 import { Clock } from '@/types';
 import Loading from '@/components/Loading';
@@ -53,7 +54,12 @@ export default function ClockPage() {
     <Center>
       <Box m="5" maxWidth="1000">
         <Heading mb="5">
-          {getClockTypeByLink(clock!.type)?.singularDisplayName} #{clock!.id}
+          <NextLink href={`/${clock!.type}`} passHref>
+            <Link boxShadow="none !important">
+              {getClockTypeByLink(clock!.type)?.singularDisplayName}
+            </Link>
+          </NextLink>{' '}
+          #{clock!.id}
         </Heading>
         <ClockDetail clock={clock!} />
       </Box>
