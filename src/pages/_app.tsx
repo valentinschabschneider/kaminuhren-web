@@ -11,6 +11,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 
 import firebase from '@/utils/firebase';
 import Loading from '@/components/Loading';
+import Header from '@/components/Header';
 
 import '@/styles/global.scss';
 
@@ -33,7 +34,10 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     <QueryClientProvider client={queryClient}>
       <ChakraProvider>
         {!isLoading && (isLoginPage || user) ? (
-          <Component {...pageProps} />
+          <>
+            {router.pathname != '/' && <Header />}
+            <Component {...pageProps} />
+          </>
         ) : (
           <Loading />
         )}

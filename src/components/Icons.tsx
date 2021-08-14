@@ -3,7 +3,6 @@ import { createIcon } from '@chakra-ui/react';
 export const QRCodeIcon = createIcon({
   displayName: 'QRCodeIcon',
   viewBox: '0 0 512 512',
-  // path can also be an array of elements, if you have multiple paths, lines, shapes, etc.
   path: [
     <path
       fill="currentColor"
@@ -48,6 +47,25 @@ export const QRCodeIcon = createIcon({
     <path
       fill="currentColor"
       d="m160 384h-16c-8.837 0-16-7.164-16-16v-16c0-8.836 7.163-16 16-16h16c8.837 0 16 7.164 16 16v16c0 8.836-7.163 16-16 16z"
+    />,
+  ],
+});
+
+export const HomeIcon = createIcon({
+  displayName: 'HomeIcon',
+  viewBox: '0 0 731.168 731.169',
+  path: [
+    <path
+      fill="currentColor"
+      d="M463.5,547.6c29.8,0,54-24.2,54-54V264.9h82.4c5.1,0,9.6-3.1,11.3-7.9c1.8-4.7,0.4-10.1-3.5-13.4L334.4,10.5
+		c-16.3-14-40.4-14-56.8,0L4.2,243.6c-3.9,3.3-5.3,8.6-3.5,13.4c1.7,4.8,6.3,7.9,11.3,7.9h82.4v228.7c0,29.8,24.2,54,54,54
+		 M306,409.7c-55.4,0-100.4-45-100.4-100.4c0-55.4,45-100.4,100.4-100.4s100.4,45,100.4,100.4C406.4,364.7,361.4,409.7,306,409.7z"
+    />,
+    <path
+      fill="currentColor"
+      className="clock-pendulum"
+      d="M285.4,447.5l-1.8,159.6c-4.8,1.8-9.5,4-13.9,7C240.5,634,233,674,253,703.2S313,740,342.2,720
+		c29.3-20,36.7-59.9,16.7-89.2c-7.5-11-17.8-18.8-29.2-23.4l2-159.9H285.4"
     />,
   ],
 });
