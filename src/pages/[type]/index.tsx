@@ -9,16 +9,27 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { PulseLoader } from 'react-spinners';
 
-import { SimpleGrid, Text, Center, useDisclosure } from '@chakra-ui/react';
+import {
+  SimpleGrid,
+  Text,
+  Center,
+  useDisclosure,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+  Box,
+} from '@chakra-ui/react';
 
 import getStore from '@/utils/store';
-
 import ClockCard from '@/components/ClockCard';
 import Loading from '@/components/Loading';
 import { getClockTypeByLink } from '@/utils/misc';
 import ClockModal from '@/components/ClockModal';
 import ErrorPage from '@/components/Error';
 import { Clock } from '@/types';
+import { CLOCK_STEP_AMOUNT } from '@/constants';
 
 const fetchClockIds = (type: string): Promise<number[]> =>
   fetch(`/api/${type}`).then((response) =>
@@ -75,6 +86,18 @@ export default function ClocksList() {
     modalOnClose();
   };
 
+  const [startClocksAt, setStartClocksAt] = useState<number>(
+    (Number(router.query.start) || 1) - 1,
+  );
+
+  const handleChange = (_: string, value: number) => {
+    router.push(`/${clockType.link}?start=${value}`, undefined, {
+      shallow: true,
+    });
+    setStartClocksAt(value - 1);
+    setDisplayedClocksAmount(CLOCK_STEP_AMOUNT);
+  };
+
   if (isLoading) return <Loading />;
 
   return (
@@ -82,10 +105,31 @@ export default function ClocksList() {
       <Head>
         <title>{clockType.pluralDisplayName}</title>
       </Head>
+      {!isLoading && clockIds.length > CLOCK_STEP_AMOUNT && (
+        <Center>
+          <Box maxWidth={900}>
+            <Text>Uhren anzeigen ab Nummer: </Text>
+            <NumberInput
+              step={10}
+              defaultValue={startClocksAt + 1}
+              min={1}
+              max={clockIds!.length}
+              onChange={handleChange}
+              maxWidth="80px"
+            >
+              <NumberInputField />
+              <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
+          </Box>
+        </Center>
+      )}
       <InfiniteScroll
         dataLength={displayedClocksAmount}
-        next={() => displayMoreClocks(18)}
-        hasMore={clockIds!.length > displayedClocksAmount}
+        next={() => displayMoreClocks(CLOCK_STEP_AMOUNT)}
+        hasMore={clockIds!.length > startClocksAt + displayedClocksAmount}
         loader={
           <Center my={5}>
             <PulseLoader color="#696969" />
@@ -105,13 +149,16 @@ export default function ClocksList() {
           placeItems="center"
           padding={5}
         >
-          {clockIds!.slice(0, displayedClocksAmount).map((id) => (
-            <ClockCard
-              type={clockType.link}
-              id={id}
-              onClick={onClockCardOpen}
-            />
-          ))}
+          {clockIds!
+            .slice(startClocksAt, startClocksAt + displayedClocksAmount)
+            .map((id) => (
+              <ClockCard
+                key={id}
+                type={clockType.link}
+                id={id}
+                onClick={onClockCardOpen}
+              />
+            ))}
         </SimpleGrid>
       </InfiniteScroll>
       {openClock && (

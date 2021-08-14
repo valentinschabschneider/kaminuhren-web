@@ -28,3 +28,5 @@ export const CLOCK_TYPES = [
 
 export const IMAGE_NOT_FOUND_URL =
   'https://www.freeiconspng.com/uploads/no-image-icon-4.png';
+
+export const CLOCK_STEP_AMOUNT = 18;
