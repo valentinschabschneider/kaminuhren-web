@@ -14,7 +14,6 @@ export default async function handler(
 ) {
   const {
     query: { type },
-    method,
   } = req;
 
   const client = getClient();

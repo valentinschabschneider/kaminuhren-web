@@ -30,7 +30,6 @@ export const useClock = (type: string, id: number) =>
     const addClock = useStore.getState().addClock;
 
     return fetchClock(type, id).then((clock) => {
-      console.log('wat');
       addClock(clock);
       return clock;
     });

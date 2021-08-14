@@ -6,7 +6,6 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
-  CloseButton,
 } from '@chakra-ui/react';
 
 const Error = () => {
